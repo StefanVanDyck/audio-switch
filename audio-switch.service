@@ -1,14 +1,14 @@
 [Unit]
 Description=Audio switch
 After=network.target
+Wants=Pulseaudio.service
 StartLimitIntervalSec=10
 
 [Service]
 Type=simple
 Restart=always
 RestartSec=1
-User=stefan
-ExecStart=/home/stefan/audio-switch/.venv/bin/python /home/stefan/audio-switch/main.py
+ExecStart=/opt/audio-switch/.venv/bin/python /opt/audio-switch/main.py
 
 [Install]
 WantedBy=multi-user.target
