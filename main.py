@@ -54,6 +54,8 @@ async def mqtt(mqtt_client: aiomqtt.Client):
 
 
 async def pulseaudio(mqtt_client: aiomqtt.Client):
+    scheduled_off = None
+
     pulse = pulsectl_asyncio.PulseAsync('audio-switch')
     await pulse.connect()
 
