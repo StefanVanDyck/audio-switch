@@ -1,3 +1,3 @@
-RPi.GPIO
-pulsectl-asyncio
-aiomqtt
+RPi.GPIO==0.7.1
+pulsectl-asyncio==1.2.2
+aiomqtt==2.3.0
