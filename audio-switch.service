@@ -9,6 +9,7 @@ Type=simple
 Restart=always
 RestartSec=1
 ExecStart=/opt/audio-switch/.venv/bin/python /opt/audio-switch/main.py
+Environment="MQTT_HOST=localhost"
 
 [Install]
 WantedBy=multi-user.target
