@@ -10,6 +10,8 @@ Restart=always
 RestartSec=1
 ExecStart=/opt/audio-switch/.venv/bin/python /opt/audio-switch/main.py
 Environment="MQTT_HOST=localhost"
+Environment="SINK_NAME=alsa_output.usb-Schiit_Audio_USB_Modi_Device-00.analog-stereo"
+Environment="LOG_LEVEL=DEBUG"
 
 [Install]
 WantedBy=multi-user.target

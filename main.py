@@ -14,6 +14,7 @@ LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 MQTT_HOST = os.environ.get('MQTT_HOST', '192.168.129.14')
 MQTT_PORT = int(os.environ.get('MQTT_PORT', '1883'))
 IDLE_TIMEOUT_SECONDS = int(os.environ.get('IDLE_TIMEOUT_SECONDS', '120'))
+SINK_NAME = os.environ.get('SINK_NAME')
 PIN = 17
 
 STATE_TOPIC = "homeassistant/switch/kitchen-audio/state"
@@ -66,6 +67,11 @@ async def pulseaudio(mqtt_client: aiomqtt.Client):
                 event: pulsectl.PulseEventInfo
                 LOGGER.debug("Pulse event: %r", event)
                 sink_info: pulsectl.PulseSinkInfo = await pulse.sink_info(event.index)
+
+                if SINK_NAME is not None and sink_info.name != SINK_NAME:
+                    LOGGER.debug("Ignoring sink %s", sink_info.name)
+                    continue
+
                 if sink_info.state == "running":
                     if scheduled_off is not None:
                         LOGGER.info("Cancelling scheduled off")
