@@ -1,7 +1,7 @@
 [Unit]
 Description=Audio switch
 After=network.target
-Wants=Pulseaudio.service
+Wants=pipewire-pulse.service
 StartLimitIntervalSec=10
 
 [Service]
