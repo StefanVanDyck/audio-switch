@@ -14,7 +14,9 @@ LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 MQTT_HOST = os.environ.get('MQTT_HOST', '192.168.129.14')
 MQTT_PORT = int(os.environ.get('MQTT_PORT', '1883'))
 IDLE_TIMEOUT_SECONDS = int(os.environ.get('IDLE_TIMEOUT_SECONDS', '120'))
-PIN = 17
+SINK_NAME = os.environ.get('SINK_NAME')
+PIN = int(os.environ.get('GPIO_PIN'))
+MQTT_RECONNECT_DELAY = int(os.environ.get('MQTT_RECONNECT_DELAY', '10'))
 
 STATE_TOPIC = "homeassistant/switch/kitchen-audio/state"
 COMMAND_TOPIC = "homeassistant/switch/kitchen-audio/set"
@@ -66,6 +68,11 @@ async def pulseaudio(mqtt_client: aiomqtt.Client):
                 event: pulsectl.PulseEventInfo
                 LOGGER.debug("Pulse event: %r", event)
                 sink_info: pulsectl.PulseSinkInfo = await pulse.sink_info(event.index)
+
+                if SINK_NAME is not None and sink_info.name != SINK_NAME:
+                    LOGGER.debug("Ignoring sink %s", sink_info.name)
+                    continue
+
                 if sink_info.state == "running":
                     if scheduled_off is not None:
                         LOGGER.info("Cancelling scheduled off")
@@ -103,9 +110,15 @@ async def main():
     GPIO.setup(PIN, GPIO.OUT)
 
     try:
-        async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as mqtt_client:
-            await asyncio.gather(mqtt(mqtt_client), pulseaudio(mqtt_client))
-
+        while True:
+            try:
+                LOGGER.info("Connecting to MQTT broker")
+                async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as mqtt_client:
+                    await asyncio.gather(mqtt(mqtt_client), pulseaudio(mqtt_client))
+            except aiomqtt.exceptions.MqttError as e:
+                LOGGER.error("MQTT error: %s", e)
+                LOGGER.error("Try to reconnect in %d seconds", MQTT_RECONNECT_DELAY)
+                await asyncio.sleep(MQTT_RECONNECT_DELAY)
     finally:
         GPIO.cleanup()
 

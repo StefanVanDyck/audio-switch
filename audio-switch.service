@@ -1,15 +1,17 @@
 [Unit]
 Description=Audio switch
-After=network.target
-Wants=Pulseaudio.service
-StartLimitIntervalSec=10
+After=sound.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 Restart=always
-RestartSec=1
+RestartSec=30
 ExecStart=/opt/audio-switch/.venv/bin/python /opt/audio-switch/main.py
 Environment="MQTT_HOST=localhost"
+Environment="SINK_NAME=alsa_output.usb-Topping_E30_II-00.HiFi__Headphones__sink"
+Environment="LOG_LEVEL=INFO"
+Environment="GPIO_PIN=17"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
